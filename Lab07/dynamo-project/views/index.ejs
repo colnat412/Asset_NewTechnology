@@ -14,7 +14,8 @@
         <input type="file" name="image"/>
         <input type="submit" value="Submit"/>
     </form>
-    <form method="post" action="/delete" enctype="multipart/form-data" class="content">
+    
+    <form id="deleteForm" method="post" action="/delete" enctype="multipart/form-data" class="content">
         <table border="1">
             <tr>
                 <th>Ma SP</th>
@@ -29,11 +30,18 @@
                     <td><%= data[i].name %></td>
                     <td><%= data[i].qty %></td>
                     <td><img alt="img" width="50px" src="<%=data[i].image_url%>" /></td>
-                    <td><input type="checkbox" name="<%=data[i].id%>" /></td>
+                    <td><input type="checkbox" name="selectedItems" value="<%=data[i].id%>"/></td>
                 </tr>
             <% } %>
         </table>
-        <input type="submit" value="Delete"/>
+        <button type="submit" onclick="confirmDelete(event)">Delete</button>
     </form>
+    <script>
+        function confirmDelete(event) {
+            if (!confirm("Bạn có chắc chắn muốn xóa các sản phẩm đã chọn?")) {
+                event.preventDefault(); 
+            }
+        }
+    </script>
 </body>
 </html>

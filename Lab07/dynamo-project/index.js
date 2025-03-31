@@ -10,6 +10,10 @@ app.use
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
+const readline = require('readline-sync');
+
+
+
 const AWS = require('aws-sdk');
 const config = new AWS.Config({
     accessKeyId: process.env.ACCESS_KEY,
@@ -63,7 +67,7 @@ app.get('/', (req, res) => {
     });
 });
 
-const CLOUD_FONT_URL = 'https://d1hlz4wppaq9cq.cloudfront.net'
+const CLOUD_FONT_URL = 'https://d2yg2ks6zjttoh.cloudfront.net'
 
 app.post("/", upload.single('image'), (req, res) => {
     const {id, name, qty } = req.body;
@@ -71,7 +75,7 @@ app.post("/", upload.single('image'), (req, res) => {
     const fileType = image[image.length - 1];
     const filePath = `${uuid() + Date.now().toString()}.${fileType}`;
     const params = {
-        Bucket: "uploads3-toturial-bucket-loc",
+        Bucket: "bucket-s3-lab07",
         Key: filePath,
         Body: req.file.buffer
     }
@@ -102,32 +106,34 @@ app.post("/", upload.single('image'), (req, res) => {
 });
 
 app.post("/delete", upload.fields([]), (req, res) => {
-    const listItem = Object.keys(req.body);
-    if(listItem.length == 0)
-        return res.redirect('/');
-    
-    function onDeleteItem(index){
+    let listItem = req.body.selectedItems || [];
+    if (!Array.isArray(listItem)) {
+        listItem = [listItem];
+    }
+
+    if (listItem.length === 0) return res.redirect('/');
+
+    function onDeleteItem(index) {
+        if (index < 0) return res.redirect('/');
+
         const params = {
             TableName: tableName,
-            Key: {
-                "id": listItem[index]
-            }
+            Key: { "id": listItem[index] }
         };
 
+        // Xóa item từ DynamoDB
         docClient.delete(params, (err, data) => {
-            if(err) {
-                return res.send(err);
+            if (err) {
+                console.error(err);
+                return res.send("Lỗi khi xóa");
             } else {
-                if(index > 0){
-                    onDeleteItem(index - 1);
-                } else {
-                    return res.redirect('/');
-                }
+                onDeleteItem(index - 1);
             }
         });
     }
     onDeleteItem(listItem.length - 1);
 });
+
 
 app.listen(3000, () => {
     console.log('Server is running on port 3000');
