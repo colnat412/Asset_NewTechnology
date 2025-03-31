@@ -4,7 +4,6 @@ require('dotenv').config()
 
 app.use(express.json({extended: false}));  
 app.use(express.static('./views'))
-app.use
 app.set('view engine', 'ejs');
 app.set('views', './views');
 
@@ -55,7 +54,7 @@ app.post("/", upload.fields([]), (req, res) => {
 
 app.post("/delete", upload.fields([]), (req, res) => {
     const listItem = Object.keys(req.body);
-    if(listItem.length == 0)
+    if(listItem.length == 0)    
         return res.redirect('/');
     
     function onDeleteItem(index){
